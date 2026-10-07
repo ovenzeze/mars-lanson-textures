@@ -27,10 +27,4 @@
   #loader .sub { font-size: 13px; color: var(--hud-dim); letter-spacing: .08em; text-align: center; max-width: 90vw; padding: 0 16px; }
   #loader .err { color: #ff8a8a; margin-top: 8px; font-size: 12px; max-width: 90vw; text-align: center; }
   #bar { width: min(320px, 70vw); height: 3px; background: rgba(255,255,255,.08); border-radius: 2px; overflow: hidden; }
-  #bar > i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #3a8fff, #9ad7ff); transition: width .2s; }
-  #hud {
-    position: fixed; inset: 0; z-index: 10; pointer-events: none;
-    text-shadow: 0 1px 2px rgba(0,0,0,.85);
-  }
-  .panel {
-    position: absolute; background: var(--p
+  #bar > i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #3a8fff, #9ad7ff); tr
