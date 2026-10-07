@@ -1,0 +1,102 @@
+['KeyF'] || keys['ControlLeft'] || keys['ControlRight']) _wish.sub(_up);
+
+  // Touch move: y forward/back, x strafe
+  if (touchMove.x || touchMove.y) {
+    _wish.addScaledVector(_fwd, -touchMove.y);
+    _wish.addScaledVector(_right, touchMove.x);
+  }
+  if (touchAlt > 0) _wish.add(_up);
+  if (touchAlt < 0) _wish.sub(_up);
+
+  const boost = (keys['ShiftLeft'] || keys['ShiftRight']) ? 4.5 : 1;
+  const alt = camera.position.length() - GANYMEDE_RADIUS;
+  const baseSpeed = THREE.MathUtils.clamp(0.08 + alt * 0.35, 0.08, 12) * boost;
+
+  if (_wish.lengthSq() > 0) {
+    _wish.normalize().multiplyScalar(baseSpeed);
+    velocity.lerp(_wish, 1 - Math.exp(-6 * dt));
+  } else {
+    velocity.multiplyScalar(Math.exp(-4 * dt));
+  }
+
+  camera.position.addScaledVector(velocity, dt);
+
+  const r = camera.position.length();
+  const a = r - GANYMEDE_RADIUS;
+  if (a < MIN_ALT) camera.position.multiplyScalar((GANYMEDE_RADIUS + MIN_ALT) / r);
+  if (a > MAX_ALT) camera.position.multiplyScalar((GANYMEDE_RADIUS + MAX_ALT) / r);
+
+  const shadowCenter = camera.position.clone();
+  sun.position.copy(shadowCenter).add(sunDir.clone().multiplyScalar(200));
+  sun.target.position.copy(shadowCenter);
+  sun.target.updateMatrixWorld();
+  const sc = sun.shadow.camera;
+  const span = Math.max(20, alt * 8 + 15);
+  sc.left = sc.bottom = -span;
+  sc.right = sc.top = span;
+  sc.updateProjectionMatrix();
+
+  return { alt: camera.position.length() - GANYMEDE_RADIUS, speed: velocity.length() * 100 };
+}
+
+function latLonFromPos(p) {
+  const r = p.length();
+  const lat = Math.asin(THREE.MathUtils.clamp(p.y / r, -1, 1));
+  const lon = Math.atan2(p.z, p.x);
+  return { lat: THREE.MathUtils.radToDeg(lat), lon: THREE.MathUtils.radToDeg(lon) };
+}
+
+const el = {
+  alt: document.getElementById('vAlt'),
+  spd: document.getElementById('vSpd'),
+  lon: document.getElementById('vLon'),
+  lat: document.getElementById('vLat'),
+  look: document.getElementById('vLook'),
+  fps: document.getElementById('vFps'),
+};
+
+let frames = 0, fpsT = 0, fps = 0;
+
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(0.05, clock.getDelta());
+  frames++;
+  fpsT += dt;
+  if (fpsT >= 0.5) { fps = Math.round(frames / fpsT); frames = 0; fpsT = 0; }
+
+  if (jupiter) jupiter.rotation.y += dt * 0.02;
+
+  const { alt, speed } = updateCamera(dt);
+  const ll = latLonFromPos(camera.position);
+
+  el.alt.textContent = (alt * 100).toFixed(alt < 1 ? 2 : 1) + ' km';
+  el.spd.textContent = (speed * 100).toFixed(1) + ' km/s（模拟）';
+  el.lon.textContent = ll.lon.toFixed(2) + '°';
+  el.lat.textContent = ll.lat.toFixed(2) + '°';
+  el.look.textContent = `偏航 ${(look.yaw * 180 / Math.PI).toFixed(0)}° · 俯仰 ${(look.pitch * 180 / Math.PI).toFixed(0)}°`;
+  el.fps.textContent = fps + ' fps';
+
+  renderer.render(scene, camera);
+}
+
+function onResize() {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight, false);
+}
+window.addEventListener('resize', onResize);
+
+buildWorld().then(() => {
+  document.getElementById('loader').classList.add('hide');
+  animate();
+}).catch((err) => {
+  console.error(err);
+  const msg = (err && err.message) ? err.message : String(err);
+  document.getElementById('loadSub').textContent = '纹理加载失败';
+  const er = document.getElementById('loadErr');
+  er.hidden = false;
+  er.textContent = msg + ' — 请刷新或检查 /textures/ganymede.jpg';
+});
+</script>
+</body>
+</html>
