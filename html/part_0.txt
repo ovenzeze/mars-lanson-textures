@@ -1,1 +1,36 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>木卫三 · 近地漫游 | Ganymede Near-Surface Roam</title>
+<meta name="description" content="Ganymede (木卫三) near-surface space-roaming experience — Three.js, PBR surface, Jupiter on the horizon." />
+<style>
+  :root {
+    --hud: #b8e0ff;
+    --hud-dim: rgba(184, 224, 255, 0.55);
+    --panel: rgba(4, 10, 22, 0.72);
+    --accent: #6ec8ff;
+    --warn: #ffc978;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000; color: var(--hud); font-family: "Segoe UI", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; touch-action: none; }
+  #c { display: block; width: 100%; height: 100%; touch-action: none; }
+  #loader {
+    position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px;
+    background: radial-gradient(ellipse at center, #0a1528 0%, #000 70%);
+    transition: opacity .6s ease, visibility .6s;
+  }
+  #loader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+  #loader .title { font-size: 22px; letter-spacing: .18em; font-weight: 500; }
+  #loader .sub { font-size: 13px; color: var(--hud-dim); letter-spacing: .08em; text-align: center; max-width: 90vw; padding: 0 16px; }
+  #loader .err { color: #ff8a8a; margin-top: 8px; font-size: 12px; max-width: 90vw; text-align: center; }
+  #bar { width: min(320px, 70vw); height: 3px; background: rgba(255,255,255,.08); border-radius: 2px; overflow: hidden; }
+  #bar > i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #3a8fff, #9ad7ff); transition: width .2s; }
+  #hud {
+    position: fixed; inset: 0; z-index: 10; pointer-events: none;
+    text-shadow: 0 1px 2px rgba(0,0,0,.85);
+  }
+  .panel {
+    position: absolute; background: var(--p
